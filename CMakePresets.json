@@ -4,7 +4,13 @@
     {
       "name": "vcpkg",
       "binaryDir": "${sourceDir}/build",
-      "toolchainFile": "./dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "./dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
     }
   ]
 }
