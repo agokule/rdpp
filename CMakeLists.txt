@@ -11,6 +11,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(VCPKG_TARGET_TRIPLET "x64-linux")
+    find_package( Threads )
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+endif()
+
+if (WIN32)
+    if (MINGW)
+        set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic")
+    endif()
+endif()
+
 find_package(FFMPEG REQUIRED)
 
 add_subdirectory(./dependencies/screen_capture_lite-17.1.2539/src_cpp)
@@ -18,7 +31,6 @@ add_subdirectory(./dependencies/SDL3-3.2.24/ EXCLUDE_FROM_ALL)
 
 add_executable(HelloWorld
     helloworld.cpp
-    lodepng.cpp
     dependencies/imgui/imgui.cpp
     dependencies/imgui/imgui_draw.cpp
     dependencies/imgui/imgui_tables.cpp
