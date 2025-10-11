@@ -26,6 +26,9 @@ if(WIN32 AND MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 endif()
 
+set(CMAKE_TOOLCHAIN_FILE ./dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add common third-party dependencies everything needs
 add_subdirectory(./dependencies/enet-1.3.18)
 find_package(FFMPEG REQUIRED)
