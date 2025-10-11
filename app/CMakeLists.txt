@@ -13,7 +13,7 @@ add_executable(RD++ ${APP_SOURCES}
 
 target_compile_definitions(RD++ PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
-add_subdirectory(../dependencies/SDL3-3.2.24 EXCLUDE_FROM_ALL)
+add_subdirectory(../dependencies/SDL3-3.2.24 EXCLUDE_FROM_ALL ${CMAKE_BINARY_DIR}/SDL3)
 
 target_include_directories(RD++ PRIVATE
     src

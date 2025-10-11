@@ -12,7 +12,7 @@ target_include_directories(rdpp_client
         ${FFMPEG_INCLUDE_DIRS}
 )
 
-target_link_directories(rdpp_client PRIVATE ${FFMPEG_LIBRARY_DIRS} ${CMAKE_BINARY_DIR}))
+target_link_directories(rdpp_client PRIVATE ${FFMPEG_LIBRARY_DIRS} ${CMAKE_BINARY_DIR})
 
 target_link_libraries(rdpp_client
     PUBLIC
