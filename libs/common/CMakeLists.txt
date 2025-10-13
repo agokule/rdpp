@@ -1,4 +1,4 @@
-file(GLOB_RECURSE COMMON_SOURCES "src/*.cpp" "include/*.h")
+file(GLOB_RECURSE COMMON_SOURCES "src/*.cpp" "include/*.hpp")
 
 add_library(rdpp_common STATIC ${COMMON_SOURCES})
 

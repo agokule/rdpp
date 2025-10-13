@@ -1,4 +1,4 @@
-file(GLOB_RECURSE LIBSERVER_SOURCES "src/*.cpp" "include/*.h")
+file(GLOB_RECURSE LIBSERVER_SOURCES "src/*.cpp" "include/*.hpp")
 
 add_library(rdpp_server STATIC ${LIBSERVER_SOURCES})
 

@@ -1,4 +1,4 @@
-#include <rdpp_common/NetworkSerialization.h>
+#include <rdpp_common/NetworkSerialization.hpp>
 #include <ScreenCapture.h>
 
 extern "C" {

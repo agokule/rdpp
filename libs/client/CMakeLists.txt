@@ -1,4 +1,4 @@
-file(GLOB_RECURSE LIBCLIENT_SOURCES "src/*.cpp" "include/*.h")
+file(GLOB_RECURSE LIBCLIENT_SOURCES "src/*.cpp" "include/*.hpp")
 
 add_library(rdpp_client STATIC ${LIBCLIENT_SOURCES})
 

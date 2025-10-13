@@ -1,4 +1,4 @@
-file(GLOB_RECURSE APP_SOURCES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE APP_SOURCES "src/*.cpp" "src/*.hpp")
 
 add_executable(RD++ ${APP_SOURCES}
     ../dependencies/imgui/imgui.cpp
