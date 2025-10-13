@@ -67,7 +67,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     auto color_raw = ImGui::ColorConvertFloat4ToU32(state.color);
     uint8_t* color = reinterpret_cast<uint8_t*>(&color_raw);
 
-    std::cout << std::format("Rendering color: ({}, {}, {}, {})", color[0], color[1], color[2], color[3]) << std::endl;
+    if (SDL_GetTicks() % 1000 == 0)
+        std::cout << std::format("Rendering color: ({}, {}, {}, {})", color[0], color[1], color[2], color[3]) << std::endl;
 
     SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], color[3]);
     SDL_RenderClear(renderer);

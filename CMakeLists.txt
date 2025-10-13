@@ -1,15 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(RD++ LANGUAGES CXX)
-
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/lib")
+set(CMAKE_TOOLCHAIN_FILE ./dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 # Platform-specific settings
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -26,7 +17,17 @@ if(WIN32 AND MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 endif()
 
-set(CMAKE_TOOLCHAIN_FILE ./dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake)
+project(RD++ LANGUAGES CXX)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>/lib")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add common third-party dependencies everything needs
