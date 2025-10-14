@@ -47,6 +47,9 @@ bool VideoDecoder::start() {
     avcodec_parameters_to_context(codec_ctx_, codecpar);
     avcodec_open2(codec_ctx_, codec, nullptr);
 
+    codec_ctx_->thread_count = std::thread::hardware_concurrency();
+    codec_ctx_->thread_type = FF_THREAD_SLICE;
+
     running_ = true;
     decode_thread_ = std::thread(&VideoDecoder::decodeLoop, this);
     return true;
