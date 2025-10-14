@@ -7,8 +7,6 @@ target_compile_definitions(rdpp_client PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_include_directories(rdpp_client
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${FFMPEG_INCLUDE_DIRS}
 )
 

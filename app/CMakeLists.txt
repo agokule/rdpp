@@ -26,6 +26,8 @@ target_include_directories(RD++ PRIVATE
 
 target_link_libraries(RD++ PRIVATE
     rdpp_common
+    rdpp_client
+    rdpp_server
     SDL3::SDL3
     enet
 )
