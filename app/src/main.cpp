@@ -10,11 +10,15 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 
+#include <rdpp_client/VideoDecoder.hpp>
+
 struct AppState {
     SDL_Window *window;
     SDL_Renderer *renderer;
 
     ImVec4 color;
+    SDL_Texture *texture;
+    VideoDecoder decoder = {"udp://localhost:9999"};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -22,12 +26,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     std::cout << message << std::endl;
 
     AppState *state = new AppState;
+    if (!state->decoder.start())
+        return SDL_APP_FAILURE;
 
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE, &state->window, &state->renderer)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
+    state->texture = SDL_CreateTexture(state->renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, 1920, 1080);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -68,11 +76,26 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     auto color_raw = ImGui::ColorConvertFloat4ToU32(state.color);
     uint8_t* color = reinterpret_cast<uint8_t*>(&color_raw);
 
-    if (SDL_GetTicks() % 1000 == 0)
+    auto frame = state.decoder.getLatestFrame();
+
+    if (SDL_GetTicks() % 1000 == 0) {
         std::cout << std::format("Rendering color: ({}, {}, {}, {})", color[0], color[1], color[2], color[3]) << std::endl;
+
+        if (frame)
+            std::cout << "Frame: " << frame->width << "x" << frame->height << "\n";
+    }
 
     SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], color[3]);
     SDL_RenderClear(renderer);
+
+    if (frame) {
+        SDL_UpdateYUVTexture(state.texture,
+                             NULL,
+                             frame->data[0], frame->linesize[0],
+                             frame->data[1], frame->linesize[1],
+                             frame->data[2], frame->linesize[2]);
+        SDL_RenderTexture(renderer, state.texture, NULL, NULL);
+    }
 
     ImGui::Begin("Hello");
 
