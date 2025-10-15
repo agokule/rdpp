@@ -10,7 +10,6 @@
 extern "C" {
     #include <libavformat/avformat.h>
     #include <libavcodec/avcodec.h>
-    #include <libavutil/imgutils.h>
 }
 
 VideoDecoder::VideoDecoder(const std::string& url) : url_(url) {}

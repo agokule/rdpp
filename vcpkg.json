@@ -1,5 +1,18 @@
 {
   "dependencies": [
-    "ffmpeg"
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "avformat",
+        "avdevice",
+        "swscale",
+        "swresample",
+        "vpx",
+        "dav1d"
+      ],
+      "version>=": "7.1.1"
+    }
   ]
 }
