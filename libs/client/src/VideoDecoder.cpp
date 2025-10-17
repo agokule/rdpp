@@ -12,6 +12,8 @@ extern "C" {
     #include <libavcodec/avcodec.h>
 }
 
+using namespace rdpp::client;
+
 VideoDecoder::VideoDecoder(const std::string& url) : url_(url) {}
 
 VideoDecoder::~VideoDecoder() { stop(); }

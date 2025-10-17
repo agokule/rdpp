@@ -1,3 +1,4 @@
+#include "SDL3/SDL_video.h"
 #include <iostream>
 #include <format>
 #include <string>
@@ -12,13 +13,15 @@
 
 #include <rdpp_client/VideoDecoder.hpp>
 
+using namespace rdpp;
+
 struct AppState {
     SDL_Window *window;
     SDL_Renderer *renderer;
 
     ImVec4 color;
     SDL_Texture *texture;
-    VideoDecoder decoder = {"udp://localhost:9999"};
+    client::VideoDecoder decoder = {"udp://localhost:9999"};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {

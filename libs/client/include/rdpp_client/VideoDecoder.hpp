@@ -8,6 +8,8 @@ extern "C" {
     #include <libavformat/avformat.h>
 }
 
+namespace rdpp::client {
+
 class VideoDecoder {
 public:
     VideoDecoder(const std::string& url);
@@ -34,3 +36,6 @@ private:
     std::mutex frame_mutex_;
     std::shared_ptr<AVFrame> latest_frame_;
 };
+
+}
+
