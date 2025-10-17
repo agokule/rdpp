@@ -39,6 +39,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     }
 
     state->texture = SDL_CreateTexture(state->renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, 1920, 1080);
+    if (!state->texture) {
+        SDL_Log("Couldn't create texture: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
