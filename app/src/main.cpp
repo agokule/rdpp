@@ -1,7 +1,7 @@
 #include "SDL3/SDL_video.h"
 #include <format>
-#include <string>
 #include <tuple>
+#include <variant>
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -12,6 +12,7 @@
 #include "imgui_impl_sdlrenderer3.h"
 
 #include <rdpp_client/VideoDecoder.hpp>
+#include <rdpp_server/VideoStreamer.hpp>
 #include <rdpp_common/Logging.hpp>
 
 using namespace rdpp;
@@ -22,18 +23,14 @@ struct AppState {
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-    ImVec4 color;
-    SDL_Texture *texture;
-    client::VideoDecoder decoder = {"udp://localhost:9999"};
+    SDL_Texture *texture = nullptr;
+    std::variant<client::VideoDecoder, server::VideoStreamer, std::monostate> video = std::monostate{};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-    std::string message = std::format("The answer is {}", 42);
     printdbg<int>("The answer is {}", {42});
 
     AppState *state = new AppState;
-    if (!state->decoder.start())
-        return SDL_APP_FAILURE;
 
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE, &state->window, &state->renderer)) {
@@ -83,34 +80,42 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui::NewFrame();
 
-    auto color_raw = ImGui::ColorConvertFloat4ToU32(state.color);
-    uint8_t* color = reinterpret_cast<uint8_t*>(&color_raw);
+    auto curr_state = state.video.index();
 
-    auto frame = state.decoder.getLatestFrame();
+    if (curr_state == 0) {
+        auto& decoder = std::get<0>(state.video);
+        auto frame = decoder.getLatestFrame();
 
-    if (SDL_GetTicks() % 1000 == 0) {
-        printdbg("Rendering color: ({}, {}, {}, {})", std::make_tuple(color[0], color[1], color[2], color[3]));
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
 
-        if (frame)
-            printdbg("Frame: {}x{}", std::make_tuple(frame->width, frame->height));
+        if (frame) {
+            if (SDL_GetTicks() % 1000 == 0)
+                printdbg("Frame: {}x{}", std::make_tuple(frame->width, frame->height));
+
+            SDL_UpdateYUVTexture(state.texture,
+                                NULL,
+                                frame->data[0], frame->linesize[0],
+                                frame->data[1], frame->linesize[1],
+                                frame->data[2], frame->linesize[2]);
+            SDL_RenderTexture(renderer, state.texture, NULL, NULL);
+        }
+    } else if (curr_state == 2) {
+        ImGui::Begin("Choose application type");
+
+        if (ImGui::Button("Server")) {
+            state.video.emplace<server::VideoStreamer>("**set to a video file on your machine**", "udp://localhost:9999");
+            if (!std::get<server::VideoStreamer>(state.video).start())
+                return SDL_APP_FAILURE;
+        }
+
+        if (ImGui::Button("Client")) {
+            state.video.emplace<client::VideoDecoder>("udp://localhost:9999");
+            std::get<client::VideoDecoder>(state.video).start();
+        }
+
+        ImGui::End();
     }
-
-    SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], color[3]);
-    SDL_RenderClear(renderer);
-
-    if (frame) {
-        SDL_UpdateYUVTexture(state.texture,
-                             NULL,
-                             frame->data[0], frame->linesize[0],
-                             frame->data[1], frame->linesize[1],
-                             frame->data[2], frame->linesize[2]);
-        SDL_RenderTexture(renderer, state.texture, NULL, NULL);
-    }
-
-    ImGui::Begin("Hello");
-
-    ImGui::ColorPicker4("Choose a Color", &state.color.x, ImGuiColorEditFlags_Uint8);
-    ImGui::End();
 
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
