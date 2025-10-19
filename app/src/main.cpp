@@ -1,7 +1,7 @@
 #include "SDL3/SDL_video.h"
-#include <iostream>
 #include <format>
 #include <string>
+#include <tuple>
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -12,8 +12,11 @@
 #include "imgui_impl_sdlrenderer3.h"
 
 #include <rdpp_client/VideoDecoder.hpp>
+#include <rdpp_common/Logging.hpp>
 
 using namespace rdpp;
+using rdpp::common::log::printrel;
+using rdpp::common::log::printdbg;
 
 struct AppState {
     SDL_Window *window;
@@ -26,7 +29,7 @@ struct AppState {
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     std::string message = std::format("The answer is {}", 42);
-    std::cout << message << std::endl;
+    printdbg<int>("The answer is {}", {42});
 
     AppState *state = new AppState;
     if (!state->decoder.start())
@@ -86,10 +89,10 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     auto frame = state.decoder.getLatestFrame();
 
     if (SDL_GetTicks() % 1000 == 0) {
-        std::cout << std::format("Rendering color: ({}, {}, {}, {})", color[0], color[1], color[2], color[3]) << std::endl;
+        printdbg("Rendering color: ({}, {}, {}, {})", std::make_tuple(color[0], color[1], color[2], color[3]));
 
         if (frame)
-            std::cout << "Frame: " << frame->width << "x" << frame->height << "\n";
+            printdbg("Frame: {}x{}", std::make_tuple(frame->width, frame->height));
     }
 
     SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], color[3]);

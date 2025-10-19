@@ -1,11 +1,11 @@
 #include <rdpp_client/VideoDecoder.hpp>
+#include <rdpp_common/Logging.hpp>
 
 #include <atomic>
 #include <thread>
 #include <mutex>
 #include <memory>
 #include <string>
-#include <iostream>
 
 extern "C" {
     #include <libavformat/avformat.h>
@@ -13,6 +13,7 @@ extern "C" {
 }
 
 using namespace rdpp::client;
+using namespace rdpp::common;
 
 VideoDecoder::VideoDecoder(const std::string& url) : url_(url) {}
 
@@ -23,11 +24,11 @@ bool VideoDecoder::start() {
     avformat_network_init();
 
     if (avformat_open_input(&fmt_ctx_, url_.c_str(), nullptr, nullptr) < 0) {
-        std::cerr << "Failed to open input\n";
+        log::printrel("Failed to open input");
         return false;
     }
     if (avformat_find_stream_info(fmt_ctx_, nullptr) < 0) {
-        std::cerr << "Failed to find stream info\n";
+        log::printrel("Failed to find stream info");
         return false;
     }
 
@@ -38,7 +39,7 @@ bool VideoDecoder::start() {
         }
     }
     if (video_stream_index_ == -1) {
-        std::cerr << "No video stream found\n";
+        log::printrel("No video stream found");
         return false;
     }
 
