@@ -19,12 +19,10 @@ using rdpp::server::VideoStreamer;
 
 VideoStreamer::VideoStreamer(const std::string& input, const std::string& output)
     : input_file {input}, output_url{output}, running {false} {
-    avformat_network_init();
 }
 
 VideoStreamer::~VideoStreamer() {
     stop();
-    avformat_network_deinit();
 }
 
 bool VideoStreamer::start() {

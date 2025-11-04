@@ -21,7 +21,9 @@ VideoDecoder::~VideoDecoder() { stop(); }
 
 bool VideoDecoder::start() {
     if (running_) return false;
-    avformat_network_init();
+
+    log::printdbg("Starting video decoding...");
+    log::printdbg("Opening input...");
 
     if (avformat_open_input(&fmt_ctx_, url_.c_str(), nullptr, nullptr) < 0) {
         log::printrel("Failed to open input");
@@ -63,7 +65,6 @@ void VideoDecoder::stop() {
     if (decode_thread_.joinable()) decode_thread_.join();
     if (codec_ctx_) avcodec_free_context(&codec_ctx_);
     if (fmt_ctx_) avformat_close_input(&fmt_ctx_);
-    avformat_network_deinit();
 }
 
 std::shared_ptr<AVFrame> VideoDecoder::getLatestFrame() {
