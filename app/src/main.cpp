@@ -14,6 +14,7 @@
 #include <rdpp_client/VideoDecoder.hpp>
 #include <rdpp_server/VideoStreamer.hpp>
 #include <rdpp_common/Logging.hpp>
+#include <rdpp_server/ScreenRecorder.hpp>
 
 using namespace rdpp;
 using rdpp::common::log::printrel;
