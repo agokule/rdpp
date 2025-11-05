@@ -6,6 +6,7 @@
       "features": [
         "avcodec",
         "avformat",
+        "avfilter",
         "avdevice",
         "swscale",
         "swresample",
