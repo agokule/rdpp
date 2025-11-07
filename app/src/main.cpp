@@ -26,6 +26,7 @@ struct AppState {
 
     SDL_Texture *texture = nullptr;
     std::variant<client::VideoDecoder, server::VideoStreamer, std::monostate> video = std::monostate{};
+    std::optional<server::ScreenRecorder> recorder;
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -54,6 +55,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     ImGui::StyleColorsDark();
     ImGui_ImplSDL3_InitForSDLRenderer(state->window, state->renderer);
     ImGui_ImplSDLRenderer3_Init(state->renderer);
+
+    std::cout << "This thread id: " << std::this_thread::get_id() << std::endl;
 
     *appstate = state;
 
@@ -106,6 +109,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
         if (ImGui::Button("Server")) {
             state.video.emplace<server::VideoStreamer>("**set to a video file on your machine**", "udp://localhost:9999");
+            const auto& monitors = SL::Screen_Capture::GetMonitors();
+            state.recorder.emplace(monitors[0]);
+            state.recorder->start();
+
+            state.video.emplace<server::VideoStreamer>("C:\\Users\\Atharv\\outputx264.mkv", "udp://localhost:9999");
             if (!std::get<server::VideoStreamer>(state.video).start())
                 return SDL_APP_FAILURE;
         }

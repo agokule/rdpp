@@ -19,6 +19,7 @@ class ScreenRecorder {
     bool image_data_in_useM = false;
     std::shared_ptr<SL::Screen_Capture::IScreenCaptureManager> frame_grabberM;
 
+    // note that this function runs in a different thread
     void on_frame_changed(const SL::Screen_Capture::Image& img, const SL::Screen_Capture::Monitor& monitor);
 
 public:

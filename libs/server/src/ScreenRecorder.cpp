@@ -10,7 +10,7 @@ using SL::Screen_Capture::Height;
 
 ScreenRecorder::ScreenRecorder(const SL::Screen_Capture::Monitor& monitor) {
     capture_configM = SL::Screen_Capture::CreateCaptureConfiguration(
-        [&monitor](){
+        [monitor](){
             return std::vector{monitor};
         }
     )->onFrameChanged(std::bind(&ScreenRecorder::on_frame_changed, this,
@@ -28,5 +28,9 @@ void ScreenRecorder::on_frame_changed(const SL::Screen_Capture::Image& img, cons
 
     auto size = Width(img) * Height(img) * sizeof(SL::Screen_Capture::ImageBGRA);
     image_dataM.reserve(size);
+
+    log::printdbg<typeof(size)>("Size of image: {}", {size});
+
+    std::cout << "This thread id: " << std::this_thread::get_id() << std::endl;
 }
 
