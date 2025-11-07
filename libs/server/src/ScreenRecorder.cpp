@@ -32,14 +32,14 @@ ScreenRecorder::ScreenRecorder(const SL::Screen_Capture::Monitor& monitor) {
         [monitor](){
             return std::vector{monitor};
         }
-    )->onFrameChanged(std::bind(&ScreenRecorder::on_frame_changed, this,
+    )->onNewFrame(std::bind(&ScreenRecorder::on_frame_changed, this,
                                 std::placeholders::_1,
                                 std::placeholders::_2));
-
 }
 
 void ScreenRecorder::start() {
     frame_grabberM = capture_configM->start_capturing();
+    frame_grabberM->setFrameChangeInterval(std::chrono::milliseconds(34));
 }
 
 void ScreenRecorder::on_frame_changed(const SL::Screen_Capture::Image& img, const SL::Screen_Capture::Monitor& monitor) {

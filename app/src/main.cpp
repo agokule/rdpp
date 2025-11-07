@@ -21,10 +21,12 @@ using rdpp::common::log::printrel;
 using rdpp::common::log::printdbg;
 
 struct AppState {
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 
-    SDL_Texture *texture = nullptr;
+    SDL_Texture* texture = nullptr;
+    SDL_Texture* screen_recording_texture = nullptr;
+
     std::variant<client::VideoDecoder, server::VideoStreamer, std::monostate> video = std::monostate{};
     std::optional<server::ScreenRecorder> recorder;
 };
@@ -35,7 +37,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     AppState *state = new AppState;
 
     /* Create the window */
-    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE, &state->window, &state->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_RESIZABLE, &state->window, &state->renderer)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
@@ -104,6 +106,25 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
                                 frame->data[2], frame->linesize[2]);
             SDL_RenderTexture(renderer, state.texture, NULL, NULL);
         }
+    } else if (state.screen_recording_texture && state.recorder.has_value()) {
+        server::ImageDataLock lock {*state.recorder};
+        auto& vec = *lock;
+        uint8_t* locked_pixels = nullptr;
+        int length_of_row = 0;
+        printdbg<size_t>("Vector size: {}", {vec.size()});
+
+        if (!SDL_LockTexture(state.screen_recording_texture, NULL, reinterpret_cast<void**>(&locked_pixels), &length_of_row)) {
+            printrel<const char*>("Could not lock texture: \"{}\"", { SDL_GetError() });
+            return SDL_APP_FAILURE;
+        }
+
+        for (uint8_t pixel_val: vec) {
+            *locked_pixels = pixel_val;
+            ++locked_pixels;
+        }
+
+        SDL_UnlockTexture(state.screen_recording_texture);
+        SDL_RenderTexture(renderer, state.screen_recording_texture, NULL, NULL);
     } else if (curr_state == 2) {
         ImGui::Begin("Choose application type");
 
@@ -112,9 +133,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             state.recorder.emplace(monitors[0]);
             state.recorder->start();
 
-            state.video.emplace<server::VideoStreamer>("C:\\Users\\Atharv\\outputx264.mkv", "udp://localhost:9999");
-            if (!std::get<server::VideoStreamer>(state.video).start())
+            state.screen_recording_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, monitors[0].Width, monitors[0].Height);
+            if (!state.screen_recording_texture) {
+                printdbg<const char*>("Unable to create texture: \"{}\"", {SDL_GetError()});
                 return SDL_APP_FAILURE;
+            }
+
+            // state.video.emplace<server::VideoStreamer>("C:\\Users\\Atharv\\outputx264.mkv", "udp://localhost:9999");
+            // if (!std::get<server::VideoStreamer>(state.video).start())
+            //     return SDL_APP_FAILURE;
         }
 
         if (ImGui::Button("Client")) {
@@ -124,7 +151,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
         ImGui::End();
     }
-
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 
