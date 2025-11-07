@@ -108,7 +108,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         ImGui::Begin("Choose application type");
 
         if (ImGui::Button("Server")) {
-            state.video.emplace<server::VideoStreamer>("**set to a video file on your machine**", "udp://localhost:9999");
             const auto& monitors = SL::Screen_Capture::GetMonitors();
             state.recorder.emplace(monitors[0]);
             state.recorder->start();
