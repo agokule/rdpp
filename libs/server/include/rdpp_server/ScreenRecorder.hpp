@@ -1,4 +1,5 @@
 #include <ScreenCapture.h>
+#include <shared_mutex>
 #include <vector>
 
 extern "C" {
@@ -12,10 +13,15 @@ extern "C" {
 
 namespace rdpp::server {
 
+struct RGBPixel {
+    uint8_t r, g, b;
+};
+
 class ScreenRecorder {
     friend class ImageDataLock;
     std::shared_ptr<SL::Screen_Capture::ICaptureConfiguration<SL::Screen_Capture::ScreenCaptureCallback>> capture_configM;
     std::vector<uint8_t> image_dataM;
+    mutable std::shared_mutex mtxM;
     bool image_data_in_useM = false;
     std::shared_ptr<SL::Screen_Capture::IScreenCaptureManager> frame_grabberM;
 
@@ -26,21 +32,25 @@ public:
     ScreenRecorder(const SL::Screen_Capture::Monitor& monitor);
 
     void start();
-    inline const ImageDataLock get_image_data();
+
+    RGBPixel read_pixel(unsigned idx);
+
 };
 
-
-
 class ImageDataLock {
-    std::vector<uint8_t>& image_dataM;
-    ScreenRecorder& recorder;
+    const std::vector<uint8_t>* image_dataM;
+    std::shared_lock<std::shared_mutex> lockM;
 
 public:
-    ImageDataLock(std::vector<uint8_t>& img_data, ScreenRecorder& rec);
-    ~ImageDataLock();
+    ImageDataLock(ScreenRecorder& rec);
+    ~ImageDataLock() = default;
+ 
+    // Prevent copying
+    ImageDataLock(const ImageDataLock&) = delete;
+    ImageDataLock& operator=(const ImageDataLock&) = delete;
 
-    std::vector<uint8_t>& operator->();
+    const std::vector<uint8_t>* operator->() const { return image_dataM; };
+    const std::vector<uint8_t>& operator*() const { return *image_dataM; };
 };
 
 } // namespace rdpp::server
-

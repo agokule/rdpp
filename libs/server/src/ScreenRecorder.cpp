@@ -8,6 +8,25 @@ using namespace rdpp::common;
 using SL::Screen_Capture::Width;
 using SL::Screen_Capture::Height;
 
+// taken from the screen_capture_lite example
+void extract_and_convert_to_RGB(const SL::Screen_Capture::Image &img, std::vector<uint8_t>& dst) {
+    // TODO: Make proper assertion macros in rdpp_common
+    assert(dst.size() >= static_cast<size_t>(SL::Screen_Capture::Width(img) * SL::Screen_Capture::Height(img) * sizeof(RGBPixel)));
+    const SL::Screen_Capture::ImageBGRA* imgsrc = StartSrc(img);
+    auto imgdist = dst.begin();
+    for (auto h = 0; h < Height(img); h++) {
+        auto startimgsrc = imgsrc;
+        for (auto w = 0; w < Width(img); w++) {
+            *imgdist++ = imgsrc->R;
+            *imgdist++ = imgsrc->G;
+            *imgdist++ = imgsrc->B;
+            // ignore the alpha value
+            imgsrc++;
+        }
+        imgsrc = SL::Screen_Capture::GotoNextRow(img, startimgsrc);
+    }
+}
+
 ScreenRecorder::ScreenRecorder(const SL::Screen_Capture::Monitor& monitor) {
     capture_configM = SL::Screen_Capture::CreateCaptureConfiguration(
         [monitor](){
@@ -24,13 +43,25 @@ void ScreenRecorder::start() {
 }
 
 void ScreenRecorder::on_frame_changed(const SL::Screen_Capture::Image& img, const SL::Screen_Capture::Monitor& monitor) {
-    log::printdbg("Frame difference detected!");
+    auto size = Width(img) * Height(img) * sizeof(RGBPixel);
 
-    auto size = Width(img) * Height(img) * sizeof(SL::Screen_Capture::ImageBGRA);
-    image_dataM.reserve(size);
+    std::unique_lock<std::shared_mutex> lock(mtxM);
+    image_dataM.resize(size);
+    extract_and_convert_to_RGB(img, image_dataM);
+}
 
-    log::printdbg<typeof(size)>("Size of image: {}", {size});
+RGBPixel ScreenRecorder::read_pixel(unsigned idx) {
+    std::shared_lock lock(mtxM);
+    unsigned starting_idx = idx * sizeof(RGBPixel);
+    return {
+        image_dataM.at(starting_idx),
+        image_dataM.at(starting_idx + 1),
+        image_dataM.at(starting_idx + 2)
+    };
+}
 
-    std::cout << "This thread id: " << std::this_thread::get_id() << std::endl;
+ImageDataLock::ImageDataLock(ScreenRecorder& rec)
+    : lockM(rec.mtxM), image_dataM(&rec.image_dataM) {
+
 }
 
