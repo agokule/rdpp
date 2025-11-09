@@ -111,7 +111,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         auto& vec = *lock;
         uint8_t* locked_pixels = nullptr;
         int length_of_row = 0;
-        printdbg<size_t>("Vector size: {}", {vec.size()});
 
         if (!SDL_LockTexture(state.screen_recording_texture, NULL, reinterpret_cast<void**>(&locked_pixels), &length_of_row)) {
             printrel<const char*>("Could not lock texture: \"{}\"", { SDL_GetError() });
