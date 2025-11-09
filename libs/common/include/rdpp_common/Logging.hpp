@@ -32,7 +32,7 @@ void print_with_fmt_impl(const std::format_string<Args...>& fmt,
 
 template<class ...Args>
 void printdbg(const std::format_string<Args...> fmt, 
-              std::tuple<Args...>&& args, std::source_location loc = std::source_location::current()) {
+              std::tuple<Args...>&& args, const std::source_location loc = std::source_location::current()) {
     #ifdef DEBUG
     print_with_fmt_impl(fmt, args, loc);
     #endif
@@ -40,9 +40,24 @@ void printdbg(const std::format_string<Args...> fmt,
 
 template<class ...Args>
 void printrel(const std::format_string<Args...> fmt, 
-              std::tuple<Args...>&& args, std::source_location loc = std::source_location::current()) {
+              std::tuple<Args...>&& args, const std::source_location loc = std::source_location::current()) {
     print_with_fmt_impl(fmt, args, loc);
 }
+
+void debug_assert(
+    bool condition,
+    std::string_view message,
+    bool fatal = false,
+    const std::source_location &location = std::source_location::current()
+);
+
+
+void release_assert(
+    bool condition,
+    std::string_view message,
+    bool fatal = false,
+    const std::source_location &location = std::source_location::current()
+);
 
 }
 

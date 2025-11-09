@@ -19,6 +19,7 @@
 using namespace rdpp;
 using rdpp::common::log::printrel;
 using rdpp::common::log::printdbg;
+using namespace rdpp::common;
 
 struct AppState {
     SDL_Window* window;
