@@ -1,6 +1,9 @@
+#pragma once
+
 #include <ScreenCapture.h>
 #include <shared_mutex>
 #include <vector>
+#include <mutex>
 
 extern "C" {
     #include <libavformat/avformat.h>
