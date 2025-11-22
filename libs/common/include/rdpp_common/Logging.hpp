@@ -49,15 +49,24 @@ void printrel(const std::format_string<Args...> fmt,
 void debug_assert(
     bool condition,
     std::string_view message,
-    bool fatal = false,
     const std::source_location &location = std::source_location::current()
 );
-
 
 void release_assert(
     bool condition,
     std::string_view message,
-    bool fatal = false,
+    const std::source_location &location = std::source_location::current()
+);
+
+void debug_assert_fatal(
+    bool condition,
+    std::string_view message,
+    const std::source_location &location = std::source_location::current()
+);
+
+void release_assert_fatal(
+    bool condition,
+    std::string_view message,
     const std::source_location &location = std::source_location::current()
 );
 

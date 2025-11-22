@@ -28,13 +28,12 @@ void assert_fail(std::string_view message, bool fatal, const std::source_locatio
 void log::debug_assert(
     bool condition,
     std::string_view message,
-    bool fatal,
     const std::source_location &location) {
 #ifdef DEBUG
   if (condition)
     return;
 
-  assert_fail(message, fatal, location);
+  assert_fail(message, false, location);
 #endif // DEBUG
 }
 
@@ -42,12 +41,33 @@ void log::debug_assert(
 void log::release_assert(
     bool condition,
     std::string_view message,
-    bool fatal,
     const std::source_location& location) {
   if (condition)
     return;
     
-  assert_fail(message, fatal, location);
+  assert_fail(message, false, location);
 }
 
+void log::debug_assert_fatal(
+    bool condition,
+    std::string_view message,
+    const std::source_location &location) {
+#ifdef DEBUG
+  if (condition)
+    return;
+
+  assert_fail(message, true, location);
+#endif // DEBUG
+}
+
+
+void log::release_assert_fatal(
+    bool condition,
+    std::string_view message,
+    const std::source_location& location) {
+  if (condition)
+    return;
+    
+  assert_fail(message, true, location);
+}
 
