@@ -13,6 +13,7 @@
 
 #include <rdpp_client/VideoDecoder.hpp>
 #include <rdpp_server/VideoStreamer.hpp>
+#include <rdpp_server/VideoStreamer2.hpp>
 #include <rdpp_common/Logging.hpp>
 #include <rdpp_server/ScreenRecorder.hpp>
 
@@ -71,6 +72,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
     if (event->type == SDL_EVENT_QUIT)
         return SDL_APP_SUCCESS;
+
+    if (event->type == SDL_EVENT_KEY_UP)
+        if (event->key.key == SDLK_A)
+            server::VideoStreamer2 x {1920, 1080};
 
     ImGui_ImplSDL3_ProcessEvent(event);
     if (ImGui::GetIO().WantCaptureMouse) return SDL_APP_CONTINUE;
