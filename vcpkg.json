@@ -11,7 +11,9 @@
         "swscale",
         "swresample",
         "vpx",
-        "dav1d"
+        "dav1d",
+        "vulkan",
+        "openh264"
       ],
       "version>=": "7.1.1"
     }
