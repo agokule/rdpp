@@ -23,6 +23,9 @@ private:
     AVPacket* pktM;
     AVCodecContext* codec_contextM;
     SwsContext* sws_contextM;
+    AVFormatContext* ocM;
+    AVStream* video_streamM;
+    int64_t frame_countM = 0;
 };
 
 } // namespace rdpp::server

@@ -26,6 +26,8 @@ class ScreenRecorder {
     std::vector<uint8_t> image_dataM;
     mutable std::shared_mutex mtxM;
     bool image_data_in_useM = false;
+    int width = 0;
+    int height = 0;
     std::shared_ptr<SL::Screen_Capture::IScreenCaptureManager> frame_grabberM;
 
     // note that this function runs in a different thread
@@ -43,6 +45,7 @@ public:
 class ImageDataLock {
     const std::vector<uint8_t>* image_dataM;
     std::shared_lock<std::shared_mutex> lockM;
+    int pixel_width, pixel_height;
 
 public:
     ImageDataLock(ScreenRecorder& rec);
@@ -52,8 +55,11 @@ public:
     ImageDataLock(const ImageDataLock&) = delete;
     ImageDataLock& operator=(const ImageDataLock&) = delete;
 
-    const std::vector<uint8_t>* operator->() const { return image_dataM; };
-    const std::vector<uint8_t>& operator*() const { return *image_dataM; };
+    const std::vector<uint8_t>* operator->() const { return image_dataM; }
+    const std::vector<uint8_t>& operator*() const { return *image_dataM; }
+
+    int get_pixel_width() const { return pixel_width; }
+    int get_pixel_height() const { return pixel_height; }
 };
 
 } // namespace rdpp::server

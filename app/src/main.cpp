@@ -31,6 +31,7 @@ struct AppState {
 
     std::variant<client::VideoDecoder, server::VideoStreamer, std::monostate> video = std::monostate{};
     std::optional<server::ScreenRecorder> recorder;
+    std::optional<server::VideoStreamer2> streamer;
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -72,10 +73,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
     if (event->type == SDL_EVENT_QUIT)
         return SDL_APP_SUCCESS;
-
-    if (event->type == SDL_EVENT_KEY_UP)
-        if (event->key.key == SDLK_A)
-            server::VideoStreamer2 x {1920, 1080};
 
     ImGui_ImplSDL3_ProcessEvent(event);
     if (ImGui::GetIO().WantCaptureMouse) return SDL_APP_CONTINUE;
@@ -130,6 +127,10 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
         SDL_UnlockTexture(state.screen_recording_texture);
         SDL_RenderTexture(renderer, state.screen_recording_texture, NULL, NULL);
+
+        bool success = state.streamer->encode_frame(lock);
+        log::release_assert(success, "streamer->encode_frame failed");
+
     } else if (curr_state == 2) {
         ImGui::Begin("Choose application type");
 
@@ -143,6 +144,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
                 printdbg<const char*>("Unable to create texture: \"{}\"", {SDL_GetError()});
                 return SDL_APP_FAILURE;
             }
+
+            state.streamer.emplace(monitors[0].Width, monitors[0].Height);
 
             // state.video.emplace<server::VideoStreamer>("C:\\Users\\Atharv\\outputx264.mkv", "udp://localhost:9999");
             // if (!std::get<server::VideoStreamer>(state.video).start())

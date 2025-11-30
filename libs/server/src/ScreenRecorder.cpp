@@ -27,7 +27,8 @@ void extract_and_convert_to_RGB(const SL::Screen_Capture::Image &img, std::vecto
     }
 }
 
-ScreenRecorder::ScreenRecorder(const SL::Screen_Capture::Monitor& monitor) {
+ScreenRecorder::ScreenRecorder(const SL::Screen_Capture::Monitor& monitor)
+    : width {monitor.Width}, height {monitor.Height} {
     capture_configM = SL::Screen_Capture::CreateCaptureConfiguration(
         [monitor](){
             return std::vector{monitor};
@@ -61,7 +62,7 @@ RGBPixel ScreenRecorder::read_pixel(unsigned idx) {
 }
 
 ImageDataLock::ImageDataLock(ScreenRecorder& rec)
-    : lockM(rec.mtxM), image_dataM(&rec.image_dataM) {
+    : lockM(rec.mtxM), image_dataM(&rec.image_dataM), pixel_width(rec.width), pixel_height(rec.height) {
 
 }
 
